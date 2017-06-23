@@ -1,0 +1,19 @@
+{
+  "name": "ms-bot-builder",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "Scott Spence <spences10apps@gmail.com> (https://spences10.github.io/)",
+  "license": "MIT",
+  "dependencies": {
+    "botbuilder": "3.8.4",
+    "restify": "4.3.0"
+  },
+  "devDependencies": {
+    "prettier": "1.4.4"
+  }
+}
