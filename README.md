@@ -73,4 +73,4 @@ So now get the local host endpoint and enter it into the emulators address bar, 
 <!--LINKS-->
 [njs]: https://nodejs.org/
 [bbstart]: https://docs.microsoft.com/en-us/bot-framework/nodejs/bot-builder-nodejs-overview
-[botemu] https://github.com/Microsoft/BotFramework-Emulator/releases
+[botemu]: https://github.com/Microsoft/BotFramework-Emulator/releases
