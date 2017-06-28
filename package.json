@@ -1,7 +1,7 @@
 {
   "name": "ms-bot-builder",
   "version": "1.0.0",
-  "description": "",
+  "description": "Get started: my take on the botbuilder documentation",
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js"
@@ -16,5 +16,13 @@
   "devDependencies": {
     "nodemon": "1.11.0",
     "prettier": "1.4.4"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chingubotsteam5/botbuilder-start.git"
+  },
+  "bugs": {
+    "url": "https://github.com/chingubotsteam5/botbuilder-start/issues"
+  },
+  "homepage": "https://github.com/chingubotsteam5/botbuilder-start#readme"
 }
