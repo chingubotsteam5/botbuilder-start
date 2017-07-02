@@ -10,16 +10,6 @@ const connector = new builder.ChatConnector({
 // create the bot
 const bot = new builder.UniversalBot(connector)
 
-// add dialog
-bot.dialog('/', [
-  (session) => {
-    builder.Prompts.text(session, 'Please enter your name')
-  },
-  (session, result) => {
-    session.send('Hello, ' + result.response)
-  }
-])
-
 // create the server
 const server = restify.createServer()
 server.listen(process.env.port || process.env.PORT || 3978, () => {
@@ -27,3 +17,41 @@ server.listen(process.env.port || process.env.PORT || 3978, () => {
 })
 // listen on
 server.post('/api/messages', connector.listen())
+
+// debug with `node --debug index.js`
+// add dialog, build user profile
+bot.dialog('/', [
+  (session) => {
+    session.beginDialog('/ensureProfile', session.userData.profile)
+  },
+  (session, results) => {
+    session.userData.profile = results.response
+    session.send(`Hello ${session.userData.profile.response} I love ${session.userData.profile.company}`)
+  }
+])
+
+// build the ensureProfile dialog
+bot.dialog('/ensureProfile', [
+  (session, args, next) => {
+    session.dialogData.profile = args || {}
+    if (!session.dialogData.profile.name) {
+      builder.Prompts.text(session, `What's your name?`)
+    } else {
+      next()
+    }
+  },
+  (session, args, next) => {
+    session.dialogData.profile = args || {}
+    if (!session.dialogData.profile.company) {
+      builder.Prompts.text(session, 'What company do you work for?')
+    } else {
+      next()
+    }
+  },
+  (session, results) => {
+    if (results.response) {
+      session.dialogData.profile.company = results.response
+    }
+    session.endDialogWithResult({ response: session.dialogData.profile })
+  }
+])
