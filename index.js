@@ -6,14 +6,16 @@ const connector = new builder.ChatConnector()
 const bot = new builder.UniversalBot(connector)
 
 const dialog = new builder.IntentDialog()
+
 dialog.matches(/^search/i, [
   (session, args, next) => {
     if (session.message.text.toLowerCase() == 'search') {
-      // Prompt user for text
-      builder.Prompts.text(session, 'Who do you want to search for?')
+      builder.Prompts.text(session, 'Who are you looking for?')
     } else {
       const query = session.message.text.substring(7)
-      next({ response: query })
+      next({
+        response: query
+      })
     }
   },
   (session, result, next) => {
@@ -21,7 +23,7 @@ dialog.matches(/^search/i, [
     if (!query) {
       session.endDialog('Request cancelled')
     } else {
-      githubClient.executeSearch(query, (profiles) => {
+      githubClient.executeSearch(query, profiles => {
         const totalCount = profiles.total_count
         if (totalCount == 0) {
           session.endDialog('Sorry, no results found.')
@@ -29,19 +31,49 @@ dialog.matches(/^search/i, [
           session.endDialog('More than 10 results were found. Please provide a more restrictive query.')
         } else {
           session.dialogData.property = null
-          // convert results into array of login names
-          const usernames = profiles.items.map((item) => item.login)
-          // Prompt user with list
-          builder.Prompts.choice(session, 'Which profile do you want to load?', usernames)
+          const cards = profiles.items.map(item => createCard(session, item))
+
+          const message = new builder.Message(session).attachments(cards).attachmentLayout('carousel')
+          session.send(message)
         }
       })
     }
   },
   (session, result, next) => {
-    // Display final request
-    session.send(result.response.entity)
+    const username = result.response.entity
+    githubClient.loadProfile(username, profile => {
+      const card = new builder.ThumbnailCard(session)
+
+      card.title(profile.login)
+
+      card.images([builder.CardImage.create(session, profile.avatar_url)])
+
+      if (profile.name) card.subtitle(profile.name)
+
+      let text = ''
+      if (profile.company) text += `${profile.company} \n`
+      if (profile.email) text += `${profile.email} \n`
+      if (profile.bio) text += profile.bio
+      card.text(text)
+
+      card.tap(new builder.CardAction.openUrl(session, profile.html_url))
+
+      const message = new builder.Message(session).attachments([card])
+      session.send(message)
+    })
   }
 ])
+
+const createCard = (session, profile) => {
+  const card = new builder.ThumbnailCard(session)
+
+  card.title(profile.login)
+  card.images([builder.CardImage.create(session, profile.avatar_url)])
+
+  card.tap(new builder.CardAction.openUrl(session, profile.html_url))
+
+  return card
+}
 
 bot.dialog('/', dialog)
 
